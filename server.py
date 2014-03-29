@@ -53,14 +53,6 @@ def getDatasetCountry(dataset, country):
 def getDatasetInfo(dataset):
 	return getFile("%s.json" % dataset)
 
-@app.route("/DataSet/<dataset>/<key>")
-def getDatasetInfoByKey(dataset, key):
-	js = json.loads(getFile("%s.json" % dataset))
-	if key in js:
-		return json.dumps({key: js[key]})
-	else:
-		return "Error! Invalid Key or Dataset!"
-
 @app.route("/data/<dataset>")
 def getDataBySet(dataset):
 	data = {}
