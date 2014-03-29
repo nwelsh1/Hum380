@@ -42,6 +42,24 @@ def getDatasetInfoByKey(dataset, key):
 	else:
 		return "Error! Invalid Key or Dataset!"
 
+@app.route("/data")
+def getAllData():
+	data = {}
+	dataSets = json.loads(getFile("DataSets.json"))
+	for dataSet in dataSets['DataSets']:
+		dataSetInfo = json.loads(getFile("%s.json" % dataSet))
+		for country in dataSetInfo["Countries"]:
+			for year in dataSetInfo["Years"]:
+				print("{}/{}/{}.json".format(dataSet, country, year))
+				js = json.loads(getFile("{}/{}/{}.json".format(dataSet, country, year)))
+				if (dataSet not in data):
+					data[dataSet] = {}
+				if (country not in data[dataSet]):
+					data[dataSet][country] = {}
+				data[dataSet][country][year] = {"Percent": js['Percent']}
+	return json.dumps(data)
+
+
 def getFile(filename):
 	return open(filename, 'r').read()
 
