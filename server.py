@@ -2,7 +2,6 @@ from flask import Flask
 import json
 
 app = Flask(__name__)
-app.debug = True
 
 @app.route("/DataSets")
 def datasets():
@@ -42,6 +41,20 @@ def getDatasetInfoByKey(dataset, key):
 	else:
 		return "Error! Invalid Key or Dataset!"
 
+@app.route("/data/<dataset>")
+def getDataBySet(dataset):
+	data = {}
+	dataSetInfo = json.loads(getFile("%s.json" % dataset))
+	for country in dataSetInfo["Countries"]:
+		for year in dataSetInfo["Years"]:
+			js = json.loads(getFile("{}/{}/{}.json".format(dataset, country, year)))
+			if dataset not in data:
+				data[dataset] = {}
+			if country not in data:
+				data[dataset][country] = {}
+			data[dataset][country][year] = {"Percent": js["Percent"]}
+	return json.dumps(data)
+
 @app.route("/data")
 def getAllData():
 	data = {}
@@ -50,7 +63,6 @@ def getAllData():
 		dataSetInfo = json.loads(getFile("%s.json" % dataSet))
 		for country in dataSetInfo["Countries"]:
 			for year in dataSetInfo["Years"]:
-				print("{}/{}/{}.json".format(dataSet, country, year))
 				js = json.loads(getFile("{}/{}/{}.json".format(dataSet, country, year)))
 				if (dataSet not in data):
 					data[dataSet] = {}
@@ -64,4 +76,4 @@ def getFile(filename):
 	return open(filename, 'r').read()
 
 if __name__ == "__main__":
-	app.run(port=80)
+	app.run(host="0.0.0.0", port=80)
