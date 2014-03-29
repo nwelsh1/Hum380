@@ -7,18 +7,38 @@ app = Flask(__name__)
 def datasets():
 	return getFile("DataSets.json")
 
-@app.route("/DataSets/<key>")
-def datasetsByKey(key):
-	js = json.loads(getFile("DataSets.json"))
-	if key in js:
-		result = {str(key): js[key]}
-		return json.dumps(result)
-	else:
-		return "Error: Invalid Key {}".format(key)
-
 @app.route("/data/<dataset>/<country>/<year>")
 def getDatasetCountryYear(dataset, country, year):
 	return getFile("{}/{}/{}.json".format(dataset, country, year))
+
+@app.route("/dataByYear/<year>/<country>")
+def getDataByYearCountry(year, country):
+	data = {}
+	dataSets = json.loads(getFile("DataSets.json"))
+	for dataSet in dataSets['DataSets']:
+		dataSetInfo = json.loads(getFile("%s.json" % dataSet))
+		js = json.loads(getFile("{}/{}/{}.json".format(dataSet, country, year)))
+		if (dataSet not in data):
+			data[dataSet] = {}
+		if (country not in data[dataSet]):
+			data[dataSet][country] = {}
+		data[dataSet][country][year] = {"Percent": js['Percent']}
+	return json.dumps(data)
+
+@app.route("/dataByYear/<year>")
+def getDataByYear(year):
+	data = {}
+	dataSets = json.loads(getFile("DataSets.json"))
+	for dataSet in dataSets['DataSets']:
+		dataSetInfo = json.loads(getFile("%s.json" % dataSet))
+		for country in dataSetInfo["Countries"]:
+			js = json.loads(getFile("{}/{}/{}.json".format(dataSet, country, year)))
+			if (dataSet not in data):
+				data[dataSet] = {}
+			if (country not in data[dataSet]):
+				data[dataSet][country] = {}
+			data[dataSet][country][year] = {"Percent": js['Percent']}
+	return json.dumps(data)
 
 @app.route("/data/<dataset>/<country>")
 def getDatasetCountry(dataset, country):
