@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ pagetitle }}</title>
+        
+        <link rel="stylesheet" href="{{ style }}" type="text/css" />
+    </head>
+    <body>
+        <div id="main">
+            <div id="header"><h1>{{pagetitle}}</h1></div>
+            {% for year in years %}
+                <div class="datasetbox" onclick="document.getElementById('{{year}}_details').className='expanded'">
+                    {{ year }} <img style="float:right;" src="/static/arrow.png" height="25px" />
+                    <div class="collapsed" id="{{year}}_details">
+                        <table width="100%">
+                            {% for country in byyear[year] %}
+                                <tr>
+                                    <td>{{country.country}}</td><td style="text-align:right;">{{country.value}}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ pagetitle }}</title>
+        
+        <link rel="stylesheet" href="{{ style }}" type="text/css" />
+    </head>
+    <body>
+        <div id="main">
+            <div id="header"><h1>Data Sets</h1></div>
+            {% for dataset in datasets %}
+                <div class="datasetbox" onclick="document.getElementById('{{dataset.SimpleName}}').className='expanded';">
+                    {{ dataset.DataSet }} <img style="float:right;" src="/static/arrow.png" height="25px" />
+                    <div id="{{dataset.SimpleName}}" class="collapsed">
+                        <a href="/viewbyyear/{{dataset.SimpleName}}">View by Year</a> | <a href="/viewbycountry/{{dataset.SimpleName}}">View by Country</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

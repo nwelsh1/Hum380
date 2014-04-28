@@ -1,5 +1,5 @@
-from flask import Flask
-import json
+from flask import Flask, render_template, url_for
+import json, bisect
 
 app = Flask(__name__)
 
@@ -37,7 +37,7 @@ def getDataByYear(year):
 				data[dataSet] = {}
 			if (country not in data[dataSet]):
 				data[dataSet][country] = {}
-			data[dataSet][country][year] = {"Percent": js['Percent']}
+			data[dataSet][country] = js['Percent']
 	return json.dumps(data)
 
 @app.route("/data/<dataset>/<country>")
@@ -60,11 +60,9 @@ def getDataBySet(dataset):
 	for country in dataSetInfo["Countries"]:
 		for year in dataSetInfo["Years"]:
 			js = json.loads(getFile("{}/{}/{}.json".format(dataset, country, year)))
-			if dataset not in data:
-				data[dataset] = {}
 			if country not in data:
-				data[dataset][country] = {}
-			data[dataset][country][year] = {"Percent": js["Percent"]}
+				data[country] = {}
+			data[country][year] = js["Percent"]
 	return json.dumps(data)
 
 @app.route("/data")
@@ -83,9 +81,53 @@ def getAllData():
 				data[dataSet][country][year] = {"Percent": js['Percent']}
 	return json.dumps(data)
 
+@app.route("/dataview/<dataset>")
+def dataview(dataset):
+    return render_template('dataview.html', pagetitle=dataset, style=url_for('static', filename="main.css"))
+
+@app.route("/viewbyyear/<datasetname>")
+def viewByYear(datasetname):
+    dataset = json.loads(getDataBySet(datasetname))
+    years = []
+    byyear = {}
+    for country in dataset:
+        for year in dataset[country]:
+            if year not in years:
+                bisect.insort(years, year)
+            if year not in byyear:
+                byyear[year] = []
+            byyear[year].append({ "country" : country, "value" : dataset[country][year] })
+    
+    return render_template('databyyear.html', years=years, byyear=byyear, style=url_for('static', filename="main.css"), pagetitle=datasetname + " by Year")
+
+@app.route("/viewbycountry/<datasetname>")
+def viewByCountry(datasetname):
+    dataset = json.loads(getDataBySet(datasetname))
+    countries = []
+    bycountry = {}
+    
+    for country in dataset:
+        for year in dataset[country]:
+            if country not in countries:
+                countries.append(country)
+            if country not in bycountry:
+                bycountry[country] = []
+            bycountry[country].append({ "year" : year, "value" : dataset[country][year] })
+    
+    return render_template('databycountry.html', countries=countries, bycountry=bycountry, style=url_for('static', filename="main.css"), pagetitle=datasetname + " by Country")
+
+@app.route("/")
+def index():
+    dataset_names = json.loads(getFile('DataSets.json'))['DataSets']
+    datasets = []
+    for dataset in dataset_names:
+        with open(dataset + '.json', 'r') as f:
+            datasets.append(json.loads(f.read()))
+    return render_template('index.html', datasets=datasets,
+        pagetitle='Data Viewer', style=url_for('static', filename="main.css"))
 
 def getFile(filename):
 	return open(filename, 'r').read()
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=80)
+	app.run(debug=True, port=80)
