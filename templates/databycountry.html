@@ -15,9 +15,9 @@
                     {{ country }} <img style="float:right;" src="/static/arrow.png" height="25px" />
                     <div class="collapsed" id="{{country}}_details">
                         <table width="100%">
-                            {% for year in bycountry[country] %}
+                            {% for year in years %}
                                 <tr>
-                                    <td>{{year.year}}</td><td style="text-align:right;">{{year.value}}</td>
+                                    <td>{{year}}</td><td style="text-align:right;">{{bycountry[country][year]}}</td>
                                 </tr>
                             {% endfor %}
                         </table>

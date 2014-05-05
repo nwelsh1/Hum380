@@ -7,7 +7,7 @@
     </head>
     <body>
         <div id="main">
-            <div id="header"><h1>Data Sets</h1></div>
+            <div id="header"><h1>{{pagetitle}}</h1></div>
             {% for dataset in datasets %}
                 <div class="datasetbox" onclick="document.getElementById('{{dataset.SimpleName}}').className='expanded';">
                     {{ dataset.DataSet }} <img style="float:right;" src="/static/arrow.png" height="25px" />
